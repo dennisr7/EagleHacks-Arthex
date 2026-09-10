@@ -7,7 +7,7 @@ import InfoCard from '../procedure/InfoCard';
 import GestureOverlay from '../ui/GestureOverlay';
 import AIAssistant from '../ui/AIAssistant';
 import { useAppStore } from '../../store/appStore';
-import { useHandTracking } from '../../hooks/useHandTracking';
+import { useBrowserHandTracking } from '../../hooks/useBrowserHandTracking';
 import { scenes } from '../../data/scenes';
 
 export default function Layout() {
@@ -16,8 +16,10 @@ export default function Layout() {
   const config = scenes[activeSceneId];
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Maintain WebSocket connection to the Python hand-tracking sidecar
-  useHandTracking();
+  // Runs MediaPipe's HandLandmarker as WASM directly in the browser against
+  // the visitor's own webcam — no Python sidecar or WebSocket server needed.
+  // Started explicitly by the user via the button in GestureOverlay.
+  const handTracking = useBrowserHandTracking();
 
   return (
     <div className="h-screen bg-slate-900 text-white flex flex-col overflow-hidden">
@@ -41,7 +43,7 @@ export default function Layout() {
         >
           <JointScene config={config} />
           <InfoCard />
-          <GestureOverlay />
+          <GestureOverlay tracking={handTracking} />
           <AIAssistant />
         </main>
 
